@@ -7,7 +7,7 @@
 // The ^ is used to denote compatability with all subversions of 0.8.X
 pragma solidity ^0.8.3;
 
-// Counters: a simple way to get a counter that can only be incremented or decremented. 
+// Counters: a simple way to get a counter that can only be incremented or decremented.
 // Very useful for ID generation, counting contract activity, among others.
 import "@openzeppelin/contracts/utils/Counters.sol";
 
@@ -36,21 +36,70 @@ contract NFTMarket is ReentrancyGuard {
     }
 
     struct MarketItem {
-        uint itemId;
+        uint256 itemId;
         address nftContract;
         uint256 tokenId;
         address payable seller;
         address payable owner;
         uint256 price;
         bool sold;
-     }
+    }
 
-     mapping(uint256 => MarketItem) private idToMarketItem;
+    mapping(uint256 => MarketItem) private idToMarketItem;
 
-     // ended here 7/8/2021 cashd
+    // Event when Market item is created
+    event MarketItemCreated(
+        uint256 indexed itemId,
+        address indexed nftContract,
+        uint256 indexed tokenId,
+        address seller,
+        address owner,
+        uint256 price,
+        bool sold
+    );
 
+    // We are using external here bc external modifier is cheaper than public
+    // Sacrificing internal calls for cheaper gas because external functions
+    // Read directly from CALLDATA and the parameters do not have to be assigned in memory
+    function getListingPrice() external view returns (uint256) {
+        return listingPrice;
+    }
+
+    function createMarketItem(
+        address nftContract,
+        uint256 tokenId,
+        uint256 price
+    ) public payable nonReentrant {
+        require(price > 0, "Price must be greater than zero!");
+        // This statement makes no sense but including it
+        require(
+            msg.value == listingPrice,
+            "Price must be equal to listing price"
+        );
+
+        _itemsIds.increment();
+        uint256 itemId = _itemsIds.current();
+
+        idToMarketItem[itemId] = MarketItem(
+            itemId,
+            nftContract,
+            tokenId,
+            payable(msg.sender),
+            payable(address(0)),
+            price,
+            false
+        );
+
+        IERC721(nftContract).transferFrom(msg.sender, address(this), tokenId);
+
+        emit MarketItemCreated(
+            itemId,
+            nftContract,
+            tokenId,
+            payable(msg.sender),
+            payable(address(0)),
+            price,
+            false
+        );
+    }
 }
-
-
-
-
