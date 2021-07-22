@@ -71,7 +71,6 @@ contract NFTMarket is ReentrancyGuard {
         uint256 price
     ) public payable nonReentrant {
         require(price > 0, "Price must be greater than zero!");
-        // This statement makes no sense but including it
         require(
             msg.value == listingPrice,
             "Price must be equal to listing price"
@@ -101,5 +100,34 @@ contract NFTMarket is ReentrancyGuard {
             price,
             false
         );
+    }
+
+    // Function to sell the NFT to a buyer
+    // Transfers ownship of the item and pays the original owner
+    function createMarketSale(address nftContract, uint256 itemId)
+        public
+        payable
+        nonReentrant
+    {
+        uint256 price = idToMarketItem[itemId].price;
+        uint256 tokenId = idToMarketItem[itemId].tokenId;
+
+        require(price == msg.value);
+
+        // Paying the seller
+        idToMarketItem[itemId].seller.transfer(msg.value);
+
+        // Transfering funds
+        IERC721(nftContract).transferFrom(address(this), msg.sender, tokenId);
+
+        // Setting owner in market place to new owner
+        idToMarketItem[itemId].owner = payable(msg.sender);
+
+        // Set item sold as true
+        idToMarketItem[itemId].sold = true;
+        _itemsSold.increment();
+
+        // Where does this go??
+        payable(owner).transfer(listingPrice);
     }
 }
