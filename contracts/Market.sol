@@ -146,7 +146,7 @@ contract NFTMarket is ReentrancyGuard {
 
         // Loop that iterates over all items and appends to array when
         // owner of a Market item is the 0 address
-        for (uint256 i = 1; i <= itemCount; i++) {
+        for (uint256 i = 0; i < itemCount; i++) {
             if (idToMarketItem[i].owner == address(0)) {
                 items[index] = idToMarketItem[i];
                 index += 1;
@@ -161,7 +161,7 @@ contract NFTMarket is ReentrancyGuard {
 
         uint256 ownerCount = 0;
 
-        for (uint256 i = 1; i <= itemsCount; i++) {
+        for (uint256 i = 0; i < itemsCount; i++) {
             if (idToMarketItem[i].owner == msg.sender) {
                 ownerCount += 1;
             }
@@ -171,7 +171,7 @@ contract NFTMarket is ReentrancyGuard {
         //  MarketItem storage currentItem = idToMarketItem[currentId];
         MarketItem[] memory ownerItems = new MarketItem[](ownerCount);
         uint256 index = 0;
-        for (uint256 i = 1; i <= itemsCount; i++) {
+        for (uint256 i = 0; i < itemsCount; i++) {
             if (idToMarketItem[i].owner == msg.sender) {
                 ownerItems[index] = idToMarketItem[i];
                 index += 1;
@@ -181,5 +181,28 @@ contract NFTMarket is ReentrancyGuard {
         return ownerItems;
     }
 
-    // function fetchMyCreatedItems() public view returns (MarketItem[])
+    // Returns only items a user has created
+    function fetchMyCreatedItems() public view returns (MarketItem[] memory) {
+        uint256 itemsCount = _itemsIds.current();
+
+        uint256 userCreatedItemsCount = 0;
+        for (uint256 i = 1; i < itemsCount; i++) {
+            if (idToMarketItem[i].seller == msg.sender) {
+                userCreatedItemsCount += 1;
+            }
+        }
+
+        uint256 index = 0;
+        MarketItem[] memory userCreatedItems = new MarketItem[](
+            userCreatedItemsCount
+        );
+        for (uint256 i = 1; i < itemsCount; i++) {
+            if (idToMarketItem[i].seller == msg.sender) {
+                userCreatedItems[index] = idToMarketItem[i];
+                index += 1;
+            }
+        }
+
+        return userCreatedItems;
+    }
 }
