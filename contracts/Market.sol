@@ -9,16 +9,16 @@ pragma solidity ^0.8.3;
 
 // Counters: a simple way to get a counter that can only be incremented or decremented.
 // Very useful for ID generation, counting contract activity, among others.
-import "@openzeppelin/contracts/utils/Counters.sol";
+import '@openzeppelin/contracts/utils/Counters.sol';
 
 // Provides a function modifier that protects agianst function reentrancy
 // Reentrancy is when a vunerable function is executed that calls an external contract
 // This contract then can call the same or other functions in your smart contract
 // to take advantage of logic that has not been executed yet.
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import '@openzeppelin/contracts/security/ReentrancyGuard.sol';
+import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 
-import "hardhat/console.sol";
+import 'hardhat/console.sol';
 
 contract NFTMarket is ReentrancyGuard {
     using Counters for Counters.Counter;
@@ -70,10 +70,10 @@ contract NFTMarket is ReentrancyGuard {
         uint256 tokenId,
         uint256 price
     ) public payable nonReentrant {
-        require(price > 0, "Price must be greater than zero!");
+        require(price > 0, 'Price must be greater than zero!');
         require(
             msg.value == listingPrice,
-            "Price must be equal to listing price"
+            'Price must be equal to listing price'
         );
 
         _itemsIds.increment();
@@ -133,23 +133,41 @@ contract NFTMarket is ReentrancyGuard {
 
     // Returns all unsold market items
     // This function could be improved a bit by using pagination
+    // function fetchMarketItems() public view returns (MarketItem[] memory) {
+    //     // Get current accumulators
+    //     uint256 itemCount = _itemsIds.current();
+    //     uint256 soldCount = _itemsSold.current();
+
+    //     // Create array with size the difference of itemCount and soldCount
+    //     MarketItem[] memory items = new MarketItem[](itemCount - soldCount);
+
+    //     // index pointer
+    //     uint256 index = 0;
+
+    //     // Loop that iterates over all items and appends to array when
+    //     // owner of a Market item is the 0 address
+    //     for (uint256 i = 0; i < itemCount; i++) {
+    //         if (idToMarketItem[i].owner == address(0)) {
+    //             items[index] = idToMarketItem[i];
+    //             index += 1;
+    //         }
+    //     }
+    //     return items;
+    // }
+
     function fetchMarketItems() public view returns (MarketItem[] memory) {
-        // Get current accumulators
         uint256 itemCount = _itemsIds.current();
-        uint256 soldCount = _itemsSold.current();
+        uint256 unsoldItemCount = _itemsIds.current() - _itemsSold.current();
+        uint256 currentIndex = 0;
 
-        // Create array with size the difference of itemCount and soldCount
-        MarketItem[] memory items = new MarketItem[](itemCount - soldCount);
-
-        // index pointer
-        uint256 index = 0;
-
-        // Loop that iterates over all items and appends to array when
-        // owner of a Market item is the 0 address
-        for (uint256 i = 0; i < itemCount; i++) {
+        MarketItem[] memory items = new MarketItem[](unsoldItemCount);
+        for (uint256 i = 1; i < itemCount + 1; i++) {
             if (idToMarketItem[i].owner == address(0)) {
-                items[index] = idToMarketItem[i];
-                index += 1;
+                uint256 currentId = i;
+
+                MarketItem storage currentItem = idToMarketItem[currentId];
+                items[currentIndex] = currentItem;
+                currentIndex += 1;
             }
         }
         return items;
@@ -161,7 +179,7 @@ contract NFTMarket is ReentrancyGuard {
 
         uint256 ownerCount = 0;
 
-        for (uint256 i = 0; i < itemsCount; i++) {
+        for (uint256 i = 1; i < itemsCount + 1; i++) {
             if (idToMarketItem[i].owner == msg.sender) {
                 ownerCount += 1;
             }
@@ -171,7 +189,7 @@ contract NFTMarket is ReentrancyGuard {
         //  MarketItem storage currentItem = idToMarketItem[currentId];
         MarketItem[] memory ownerItems = new MarketItem[](ownerCount);
         uint256 index = 0;
-        for (uint256 i = 0; i < itemsCount; i++) {
+        for (uint256 i = 0; i < itemsCount + 1; i++) {
             if (idToMarketItem[i].owner == msg.sender) {
                 ownerItems[index] = idToMarketItem[i];
                 index += 1;
@@ -186,17 +204,18 @@ contract NFTMarket is ReentrancyGuard {
         uint256 itemsCount = _itemsIds.current();
 
         uint256 userCreatedItemsCount = 0;
-        for (uint256 i = 1; i < itemsCount; i++) {
+        for (uint256 i = 0; i < itemsCount + 1; i++) {
             if (idToMarketItem[i].seller == msg.sender) {
                 userCreatedItemsCount += 1;
             }
         }
 
         uint256 index = 0;
+
         MarketItem[] memory userCreatedItems = new MarketItem[](
             userCreatedItemsCount
         );
-        for (uint256 i = 1; i < itemsCount; i++) {
+        for (uint256 i = 1; i < itemsCount + 1; i++) {
             if (idToMarketItem[i].seller == msg.sender) {
                 userCreatedItems[index] = idToMarketItem[i];
                 index += 1;
