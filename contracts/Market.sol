@@ -131,30 +131,6 @@ contract NFTMarket is ReentrancyGuard {
         payable(owner).transfer(listingPrice);
     }
 
-    // Returns all unsold market items
-    // This function could be improved a bit by using pagination
-    // function fetchMarketItems() public view returns (MarketItem[] memory) {
-    //     // Get current accumulators
-    //     uint256 itemCount = _itemsIds.current();
-    //     uint256 soldCount = _itemsSold.current();
-
-    //     // Create array with size the difference of itemCount and soldCount
-    //     MarketItem[] memory items = new MarketItem[](itemCount - soldCount);
-
-    //     // index pointer
-    //     uint256 index = 0;
-
-    //     // Loop that iterates over all items and appends to array when
-    //     // owner of a Market item is the 0 address
-    //     for (uint256 i = 0; i < itemCount; i++) {
-    //         if (idToMarketItem[i].owner == address(0)) {
-    //             items[index] = idToMarketItem[i];
-    //             index += 1;
-    //         }
-    //     }
-    //     return items;
-    // }
-
     function fetchMarketItems() public view returns (MarketItem[] memory) {
         uint256 itemCount = _itemsIds.current();
         uint256 unsoldItemCount = _itemsIds.current() - _itemsSold.current();
@@ -185,8 +161,6 @@ contract NFTMarket is ReentrancyGuard {
             }
         }
 
-        // I don't know why this is needed
-        //  MarketItem storage currentItem = idToMarketItem[currentId];
         MarketItem[] memory ownerItems = new MarketItem[](ownerCount);
         uint256 index = 0;
         for (uint256 i = 0; i < itemsCount + 1; i++) {
