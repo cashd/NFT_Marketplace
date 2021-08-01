@@ -22,15 +22,16 @@
     "@nomiclabs/hardhat-ethers": "^2.0.2",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@openzeppelin/contracts": "^4.2.0",
-    "autoprefixer": "^10.2.6",
+    "@types/react": "^17.0.15",
+    "autoprefixer": "^10.3.1",
     "chai": "^4.3.4",
     "eslint": "7.30.0",
     "eslint-config-next": "11.0.1",
     "ethereum-waffle": "^3.4.0",
     "hardhat": "^2.4.1",
-    "postcss": "^8.3.5",
+    "postcss": "^8.3.6",
     "prettier": "^2.3.2",
     "prettier-plugin-solidity": "^1.0.0-beta.16",
-    "tailwindcss": "^2.2.4"
+    "tailwindcss": "^2.2.7"
   }
 }
